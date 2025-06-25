@@ -38,8 +38,11 @@ dependencies:
   path: ^1.9.1
   path_provider: ^2.1.1
   intl: ^0.20.2
+  conditional_builder_null_safety: ^0.0.6
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.1
 
-  # sqflite_common_ffi: ^2.3.0
+
 
 dev_dependencies:
   flutter_test:

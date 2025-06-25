@@ -5,8 +5,10 @@ import 'package:todo/modules/archived_tasks/archived_tasks_screen.dart';
 import 'package:todo/shared/componants/components.dart';
 import 'package:sqflite/sqflite.dart';
 
-
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:intl/intl.dart';
+
+import '../shared/componants/constants.dart';
 //import 'package:todo/layout/database_helper.dart';
 //import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -44,13 +46,17 @@ class _HomeLayout extends State<HomeLayout> {
   var time = 'time';
   var date = 'date';
 
-  //final DatabaseHelper _dbHelper = DatabaseHelper();
+
+
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
     createDatabase();
+    //getDataFromDatabase(database);
   }
 
 
@@ -62,7 +68,12 @@ class _HomeLayout extends State<HomeLayout> {
         title: Text(titles[currentIndex],),
         centerTitle: true,
       ),
-      body: screens[currentIndex],
+      body:ConditionalBuilder(
+        condition: tasks.length > 0 ,
+        builder:(context) => screens[currentIndex],
+        fallback:(context) => Center(child: CircularProgressIndicator()),
+      ),
+      //screens[currentIndex],
       floatingActionButton: FloatingActionButton(
           child: Icon(
             fabIcon,
@@ -78,10 +89,19 @@ class _HomeLayout extends State<HomeLayout> {
                   time: timeController.text,
                 ).then((value)
                 {
-                  Navigator.pop(context);
-                  isBottomSheetShown = false;
-                  setState(() {
-                    fabIcon = Icons.edit;
+                  getDataFromDatabase(database).then((value)
+                  {
+                    Navigator.pop(context);
+
+                    setState(() {
+                      isBottomSheetShown = false;
+                      tasks = value;
+                      print(tasks);
+
+                      fabIcon = Icons.edit;
+
+                    });
+
                   });
                 });
               }
@@ -169,7 +189,13 @@ class _HomeLayout extends State<HomeLayout> {
                   ),
                 ),
                 elevation: 20.0,
-              );
+              ).closed.then((value) {
+                Navigator.pop(context);
+                isBottomSheetShown = false;
+                setState(() {
+                  fabIcon = Icons.add;
+                });
+              });
               isBottomSheetShown = true;
               setState(() {
                 fabIcon = Icons.add;
@@ -243,6 +269,14 @@ class _HomeLayout extends State<HomeLayout> {
         });
       },
       onOpen: (database) {
+        getDataFromDatabase(database).then((value)
+        {
+          setState(() {
+            tasks = value;
+            print(tasks);
+          });
+
+        });
         print('database opened');
       },
     );
@@ -277,7 +311,7 @@ class _HomeLayout extends State<HomeLayout> {
   {
     return await database.transaction((txn) {
       return txn.rawInsert(
-          'INSERT INTO tasks(title, date, time, status) VALUES("$title", "$time", "$date", "new")'
+          'INSERT INTO tasks(title, date, time, status) VALUES("$title", "$date", "$time", "new")'
       )
           .then((value) {
         print('$value inserted successfully');
@@ -287,5 +321,11 @@ class _HomeLayout extends State<HomeLayout> {
     });
   }
 //------------------------------------------------------------------------------------------------------
+  Future<List<Map>> getDataFromDatabase(database) async
+{
+  return   await database.rawQuery('SELECT * FROM tasks');
+  //print(tasks);
+}
 
+//-------------------------------------------------------------------------------------------------------
 }

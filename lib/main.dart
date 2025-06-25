@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:todo/layout/home_layot.dart';
+import 'package:todo/modules/counter.dart';
 
 //import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:todo/shared/blocobserver.dart';
 
 
 
 
 void main() {
-//  sqfliteFfiInit();
+  blocobserver: MyBlocObserver();
+
   //databaseFactory = databaseFactoryFfi;
   runApp(MyApp());
 }
@@ -20,7 +23,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      home: HomeLayout(),
+      //home: HomeLayout(),
+      home: CountScreen(),
     );
   }
 }
